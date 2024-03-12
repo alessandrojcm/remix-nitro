@@ -1,4 +1,5 @@
 import type { MetaFunction } from "@remix-run/node";
+import puppy from "/puppy.jpg";
 
 export const meta: MetaFunction = () => {
   return [
@@ -34,6 +35,7 @@ export default function Index() {
           <a target="_blank" href="https://remix.run/docs" rel="noreferrer">
             Remix Docs
           </a>
+          <img src={puppy} alt="" />
         </li>
       </ul>
     </div>

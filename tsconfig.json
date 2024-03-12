@@ -5,9 +5,11 @@
     "**/.server/**/*.ts",
     "**/.server/**/*.tsx",
     "**/.client/**/*.ts",
-    "**/.client/**/*.tsx"
+    "**/.client/**/*.tsx",
+    "**/lib/**.ts"
   ],
   "compilerOptions": {
+    "outDir": "./build",
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "types": ["@remix-run/node", "vite/client"],
     "isolatedModules": true,
@@ -25,8 +27,5 @@
     "paths": {
       "~/*": ["./app/*"]
     },
-
-    // Vite takes care of building everything, not tsc.
-    "noEmit": true
   }
 }
