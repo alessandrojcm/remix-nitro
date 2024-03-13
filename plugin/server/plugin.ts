@@ -39,9 +39,6 @@ export function vitePluginNitro(pluginOptions: {
       enforce: "post",
       async configureServer(server) {
         let clientRpc: TinyRpcProxy<ClientRpc> | undefined;
-
-        // we proxy builtin ServerHMRConnector.send/onUpdate via RPC
-        // instead of implementing entire HMRChannel on our own
         const connector = new ServerHMRConnector(server);
         connector.onUpdate((payload) => {
           clientRpc?.onUpdate(payload);
@@ -57,16 +54,11 @@ export function vitePluginNitro(pluginOptions: {
             },
             transformIndexHtml: server.transformIndexHtml,
             ssrFetchModule: async (id, importer) => {
-              // not using default `viteDevServer.ssrFetchModule` since its source map expects mysterious two empty lines,
-              // which doesn't exist in workerd's unsafe eval
-              // https://github.com/vitejs/vite/pull/12165#issuecomment-1910686678
               return server.ssrFetchModule(id, importer);
             },
             send: (messages: string) => {
               connector.send(messages);
             },
-            // allow framework to extend RPC to implement some features on main Vite process and expose them to Workerd
-            // (e.g. Remix's DevServerHooks)
             ...pluginOptions.customRpc,
           } satisfies ServerRpc,
         });

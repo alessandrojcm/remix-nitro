@@ -10,14 +10,15 @@ function getViteServer() {
       middlewareMode: true,
     },
     appType: "custom",
+    // consola does not map 1:1 to logger but it works
     customLogger: consola.withTag("vite"),
   });
 }
 // Basically just copy-pasting Nitro's dev command, but
 // injecting vite in the process. We do this here
 // as opposed of doing it in the nitro.config.ts file
-// because modifying that file at runtime would not allow us to handle vite's shutdown
-// gracefully
+// because nitro uses jiti internally to load the config file and it does so
+// using CJS instead of ESM thus firing Vite's CJS mode (which is deprecated)
 // https://github.com/unjs/nitro/blob/main/src/cli/commands/dev.ts
 async function startDevServer() {
   let viteDevServer = await getViteServer();
@@ -31,7 +32,7 @@ async function startDevServer() {
       if ("unwatch" in nitro.options._c12) {
         await nitro.options._c12.unwatch();
       }
-      // we need to restart vite or else we will get hydration mistmatches
+      // we need to restart vite or else we will get hydration mismatches
       await viteDevServer.close();
       await nitro.close();
       viteDevServer = await getViteServer();
@@ -41,7 +42,6 @@ async function startDevServer() {
      */
     nitro = await createNitro(
       {
-        // ...options,
         experimental: {
           asyncContext: true,
           openAPI: true,

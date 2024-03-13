@@ -25,6 +25,7 @@ export default defineConfig({
     vitePluginNitro({
       entry: "./app/worker-entry.ts",
       debug: true,
+      hmr: true
     }),
     tsconfigPaths(),
     vitePlugin(),
