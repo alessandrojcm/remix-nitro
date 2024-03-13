@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "vite:build",
-    "dev": "vite dev",
+    "dev": "nitropack dev",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "remix-serve ./build/server/index.js",
     "typecheck": "tsc",

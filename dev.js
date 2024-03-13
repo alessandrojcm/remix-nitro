@@ -18,7 +18,9 @@ function getViteServer() {
 // injecting vite in the process. We do this here
 // as opposed of doing it in the nitro.config.ts file
 // because nitro uses jiti internally to load the config file and it does so
-// using CJS instead of ESM thus firing Vite's CJS mode (which is deprecated)
+// using CJS instead of ESM thus firing Vite's CJS mode (which is deprecated).
+// Doing it inside a route handler does not allow us to listen for
+// server reloads either so we cannot close and recreate Vite
 // https://github.com/unjs/nitro/blob/main/src/cli/commands/dev.ts
 async function startDevServer() {
   let viteDevServer = await getViteServer();

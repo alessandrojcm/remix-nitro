@@ -17,7 +17,7 @@ interface Env {
   __VITE_RUNTIME_HMR: boolean;
   __WORKER_ENTRY: string;
 }
-// Based on https://github.com/hi-ogawa/vite-plugins/blob/main/packages/vite-node-miniflare/src/client/worker-entry.ts
+// Heavily based on https://github.com/hi-ogawa/vite-plugins/blob/main/packages/vite-node-miniflare/src/client/worker-entry.ts
 export default {
   async eventHandler(event: H3Event, env: Env) {
     try {
@@ -32,7 +32,7 @@ export default {
       return await rendererResponse(event, env);
     } catch (e) {
       consola.withTag("[remix-nitro-client]").error(e);
-      let body = "[remix-nitro-client] error]\n";
+      let body = "[remix-nitro-client] error\n";
       if (e instanceof Error) {
         body += `${e.stack ?? e.message}`;
       }
@@ -102,7 +102,6 @@ async function createRendererHandler(options: {
       ...env,
       __RPC: serverRpc, // extend for customRpc usage
     };
-    // Internal modules request not a Remix route
     return (workerEntry.default as RendererHandler)(event, workerEnv);
   };
   return fetchHandler;
@@ -117,7 +116,7 @@ function customOnUpdateFn(
 ): OnUpdateFn {
   return async (payload) => {
     if (options.debug) {
-      consola.withTag("[remix-nitro-client] ").log("HMRPayload:", payload);
+      consola.withTag("[remix-nitro-client]").log("HMRPayload:", payload);
     }
     // use simple module tree invalidation for non-hmr mode
     if (!options.hmr && payload.type === "update") {
@@ -127,13 +126,12 @@ function customOnUpdateFn(
         ]);
         if (options.debug) {
           consola
-            .withTag("[remix-nitro-client] ")
+            .withTag("[remix-nitro-client]")
             .log("invalidateDepTree:", [...invalidated]);
         }
       }
       return;
     }
-    // Workerd needs to wait until promise is resolved during the request handling
     await originalFn(payload);
   };
 }
