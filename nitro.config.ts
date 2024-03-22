@@ -13,4 +13,7 @@ export default defineNitroConfig({
       dir: "../public",
     },
   ],
+  runtimeConfig: {
+    context: "context",
+  },
 });

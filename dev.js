@@ -4,6 +4,7 @@ import { eventHandler, fromNodeMiddleware, getRequestURL } from "h3";
 import { consola } from "consola";
 
 const hmrKeyRe = /^runtimeConfig\.|routeRules\./;
+
 function getViteServer() {
   return createServer({
     server: {
@@ -55,8 +56,21 @@ async function startDevServer() {
           {
             route: "/",
             handler: eventHandler((event) => {
-              if (!getRequestURL(event).pathname.includes("api")) {
+              if (
+                !getRequestURL(event).pathname.includes("api") &&
+                !getRequestURL(event).pathname.includes("__runtimeConfig")
+              ) {
                 return fromNodeMiddleware(viteDevServer.middlewares)(event);
+              }
+            }),
+          },
+          {
+            // Let's expose the nitro context throught an endpoint so the worker can pick it up
+            // maybe there's a better less-hacky way to do this? RPC?
+            route: "/__runtimeConfig",
+            handler: eventHandler((event) => {
+              if (event.method === "GET") {
+                return nitro.options.runtimeConfig;
               }
             }),
           },

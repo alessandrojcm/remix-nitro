@@ -2,7 +2,7 @@ import { installGlobals } from "@remix-run/node";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 import { vitePlugin } from "@remix-run/dev";
-import {vitePluginNitro} from "./plugin/server/plugin";
+import { vitePluginNitro } from "./plugin/server/plugin";
 
 installGlobals();
 
@@ -25,7 +25,13 @@ export default defineConfig({
     vitePluginNitro({
       entry: "./app/worker-entry.ts",
       debug: true,
-      hmr: true
+      hmr: true,
+      customRpc: {
+        __remixGetCriticalCss: (...args: unknown[]) => {
+          // @ts-expect-error this is defined
+          return globalThis["__remix_devServerHooks"].getCriticalCss(...args);
+        },
+      },
     }),
     tsconfigPaths(),
     vitePlugin(),
