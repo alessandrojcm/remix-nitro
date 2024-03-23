@@ -1,6 +1,6 @@
 import { build, createDevServer, createNitro, prepare } from "nitropack";
 import { createServer } from "vite";
-import { eventHandler, fromNodeMiddleware, getRequestURL } from "h3";
+import { eventHandler, fromNodeMiddleware } from "h3";
 import { consola } from "consola";
 
 const hmrKeyRe = /^runtimeConfig\.|routeRules\./;
@@ -57,8 +57,8 @@ async function startDevServer() {
             route: "/",
             handler: eventHandler((event) => {
               if (
-                !getRequestURL(event).pathname.includes("api") &&
-                !getRequestURL(event).pathname.includes("__runtimeConfig")
+                !event.path.includes("api") &&
+                !event.path.includes("__runtimeConfig")
               ) {
                 return fromNodeMiddleware(viteDevServer.middlewares)(event);
               }

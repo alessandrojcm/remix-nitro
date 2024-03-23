@@ -3,11 +3,9 @@
   "include": [
     "**/*.ts",
     "**/*.tsx",
-    "**/.server/**/*.ts",
-    "**/.server/**/*.tsx",
-    "**/.client/**/*.ts",
-    "**/.client/**/*.tsx",
-    "**/lib/**.ts"
+    "**/lib/**.ts",
+    "./nitro/types/nitro.d.ts",
+    "./server/**/*"
   ],
   "compilerOptions": {
     "outDir": "./build",
@@ -28,5 +26,5 @@
     "paths": {
       "~/*": ["./app/*"]
     },
-  }
+  },
 }
