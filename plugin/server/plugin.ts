@@ -89,9 +89,11 @@ export function vitePluginNitro(pluginOptions: {
           }
         );
         return () => {
-          app.use(eventHandler(event => {
-            console.log(event.path)
-          }))
+          app.use(
+            eventHandler((event) => {
+              console.log(event.path);
+            })
+          );
           server.middlewares.use(toNodeListener(app));
         };
       },

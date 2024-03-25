@@ -2,6 +2,7 @@ import { build, createDevServer, createNitro, prepare } from "nitropack";
 import { createServer } from "vite";
 import { eventHandler, fromNodeMiddleware } from "h3";
 import { consola } from "consola";
+import { runtimeContext } from "./plugin/shared.js";
 
 const hmrKeyRe = /^runtimeConfig\.|routeRules\./;
 
@@ -11,7 +12,7 @@ function getViteServer() {
       middlewareMode: true,
     },
     appType: "custom",
-    // consola does not map 1:1 to logger but it works
+    // consola does not map 1:1 to logger, but it works
     customLogger: consola.withTag("vite"),
   });
 }
@@ -55,22 +56,16 @@ async function startDevServer() {
         devHandlers: [
           {
             route: "/",
-            handler: eventHandler((event) => {
+            handler: eventHandler(() => {
+              const event = runtimeContext.use().event;
               if (
                 !event.path.includes("api") &&
                 !event.path.includes("__runtimeConfig")
               ) {
+                event.context = {
+                  message: "from dev.js",
+                };
                 return fromNodeMiddleware(viteDevServer.middlewares)(event);
-              }
-            }),
-          },
-          {
-            // Let's expose the nitro context throught an endpoint so the worker can pick it up
-            // maybe there's a better less-hacky way to do this? RPC?
-            route: "/__runtimeConfig",
-            handler: eventHandler((event) => {
-              if (event.method === "GET") {
-                return nitro.options.runtimeConfig;
               }
             }),
           },
@@ -103,6 +98,16 @@ async function startDevServer() {
     );
     nitro.logger = consola.withTag("nitro");
     const server = createDevServer(nitro);
+    const _handler = server.app.handler;
+    server.app.handler = (event) => {
+      return runtimeContext.callAsync(
+        {
+          event,
+          runtime: nitro.options.runtimeConfig,
+        },
+        () => _handler(event)
+      );
+    };
     nitro.hooks.hookOnce("restart", reload);
     await server.listen(3000).then(() => {
       consola.withTag("nitro").info("listening on port 3000");
@@ -112,5 +117,4 @@ async function startDevServer() {
   };
   await reload();
 }
-
 startDevServer();

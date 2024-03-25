@@ -1,16 +1,17 @@
-import { eventHandler, getRequestHost, toWebRequest } from "h3";
+import { eventHandler, toWebRequest } from "h3";
 // eslint-disable-next-line import/no-unresolved,@typescript-eslint/ban-ts-comment
 // @ts-expect-error
 // eslint-disable-next-line import/no-unresolved
 import * as build from "virtual:remix/server-build";
 import { createRequestHandler } from "@remix-run/server-runtime";
-import { $fetch } from "ofetch";
+import { runtimeContext } from "../plugin/shared";
 
-export default eventHandler(async (event) => {
+export default eventHandler(async () => {
+  const { event, runtime } = runtimeContext.use();
   const mode = import.meta.env.DEV ? "development" : "production";
-  const runtime = $fetch(
-    new Request(new URL("http://" + getRequestHost(event) + "/__runtimeConfig"))
-  );
+  console.log("Event from the devHandler: ", event.context.message);
   const handler = createRequestHandler(build, mode);
-  return handler(toWebRequest(event), await runtime);
+  return handler(toWebRequest(event), {
+    context: runtime.context,
+  });
 });
