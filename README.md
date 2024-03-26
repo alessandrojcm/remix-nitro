@@ -9,6 +9,13 @@ config is not available within the Remix handler. We work around this in dev by 
 and calling said endpoint in the Remix worker entry. This is obviously not safe because the Nitro runtime could contain
 sensitive information, but it is only for dev, so it is probably ok.
 
+The plugin enables to use `useRuntimeConfig` from Nitro if imported from the virtual `#imports`. I.e:
+
+```typescript
+import {useRuntimeConfig} from "#imports";
+const runtime = useRuntimeConfig()
+```
+
 # Caveats
 ## Context sharing
 This example uses `unctx` to share the event context and the Nitro runtime configuration, so it is available in the 

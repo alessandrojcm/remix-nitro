@@ -1,5 +1,6 @@
 import type { MetaFunction } from "@remix-run/node";
 import puppy from "/puppy.jpg";
+import { useLoaderData } from "@remix-run/react";
 
 export const meta: MetaFunction = () => {
   return [
@@ -8,7 +9,13 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+export const loader = async () => {
+  const runtime = await import("#imports").then((m) => m.useRuntimeConfig());
+  return runtime.context;
+};
+
 export default function Index() {
+  const data = useLoaderData() as string;
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
       <h1>Welcome to Remix</h1>
@@ -37,6 +44,7 @@ export default function Index() {
           </a>
           <img src={puppy} alt="" />
         </li>
+        {data}
       </ul>
     </div>
   );

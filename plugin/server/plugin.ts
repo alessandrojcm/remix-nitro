@@ -4,7 +4,7 @@ import {
   ServerHMRConnector,
   type ViteDevServer,
 } from "vite";
-import { CLIENT_RPC_PATH, SERVER_RPC_PATH } from "../shared";
+import { CLIENT_RPC_PATH, runtimeContext, SERVER_RPC_PATH } from "../shared";
 
 import {
   exposeTinyRpc,
@@ -14,6 +14,7 @@ import {
   type TinyRpcProxy,
 } from "@hiogawa/tiny-rpc";
 import { createApp, eventHandler, toNodeListener, toWebRequest } from "h3";
+const NITRO_ID = "#virtual:nitro";
 
 export interface ServerRpc {
   ssrFetchModule: ViteDevServer["ssrFetchModule"];
@@ -37,6 +38,23 @@ export function vitePluginNitro(pluginOptions: {
       name: "nitro-plugin",
       apply: "serve",
       enforce: "post",
+      resolveId(source, _) {
+        if (source === "#imports") {
+          return { id: NITRO_ID };
+        }
+      },
+      // TODO: do not bundle this for build
+      load(id) {
+        if (id === NITRO_ID) {
+          const code = `
+            const useRuntimeConfig = () => (${JSON.stringify(
+              runtimeContext.use().runtime
+            )});
+            export { useRuntimeConfig };
+          `;
+          return code;
+        }
+      },
       async configureServer(server) {
         let clientRpc: TinyRpcProxy<ClientRpc> | undefined;
         const connector = new ServerHMRConnector(server);
