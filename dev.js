@@ -58,10 +58,7 @@ async function startDevServer() {
             route: "/",
             handler: eventHandler(() => {
               const event = runtimeContext.use().event;
-              if (
-                !event.path.includes("api") &&
-                !event.path.includes("__runtimeConfig")
-              ) {
+              if (!event.path.includes("api")) {
                 event.context = {
                   message: "from dev.js",
                 };
